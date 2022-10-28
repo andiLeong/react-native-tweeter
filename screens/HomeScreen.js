@@ -1,11 +1,17 @@
 import React from 'react';
-import {FlatList, Image, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {EvilIcons} from '@expo/vector-icons';
+import {
+    FlatList,
+    Image,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
-function HomeScreen({navigation}) {
-
-
+function HomeScreen({ navigation }) {
     const DATA = [
         {
             id: '1',
@@ -49,103 +55,104 @@ function HomeScreen({navigation}) {
         },
     ];
 
-
     function gotoProfile() {
-        navigation.navigate('Profile Screen')
+        navigation.navigate('Profile Screen');
     }
 
     function gotoTweet() {
-        navigation.navigate('Tweet Screen')
+        navigation.navigate('Tweet Screen');
     }
 
-    function gotoNewTweet(){
-        navigation.navigate('New Tweet')
+    function gotoNewTweet() {
+        navigation.navigate('New Tweet');
     }
 
-    const renderItem = ({item}) => (
+    const renderItem = ({ item }) => (
+        <View style={styles.tweetContainer}>
+            <TouchableOpacity onPress={() => gotoProfile()}>
+                <Image
+                    style={styles.tweetProfile}
+                    source={{
+                        uri: `https://i.pravatar.cc/64?u=${Math.floor(
+                            Math.random() * 100000
+                        )}`,
+                    }}
+                />
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+                <View style={styles.tweetsHeader}>
+                    <Text style={[styles.mr8, styles.tweetTitle]}>
+                        {item.title}
+                    </Text>
+                    <Text style={[styles.mr8, styles.tweetAuthor]}>
+                        @andiliang413
+                    </Text>
+                    <Text style={[styles.tweetAuthor]}>6m</Text>
+                </View>
 
-            <View style={styles.tweetContainer}>
-                <TouchableOpacity onPress={() => gotoProfile()}>
-                    <Image
-                        style={styles.tweetProfile}
-                        source={{
-                            uri: `https://i.pravatar.cc/64?u=${Math.floor(Math.random() * 100000)}`,
-                        }}
-                    />
+                <TouchableOpacity onPress={() => gotoTweet()}>
+                    <Text style={[styles.tweetContent]}>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Ad dolore error hic itaque libero, molestiae
+                        molestias rerum sint! Atque dolorum eius enim hic,
+                        itaque molestiae natus perspiciatis quia similique
+                        voluptatibus?
+                    </Text>
                 </TouchableOpacity>
-                <View style={{flex:1}}>
-                    <View style={styles.tweetsHeader}>
-                        <Text style={[styles.mr8, styles.tweetTitle]}>{item.title}</Text>
-                        <Text style={[styles.mr8, styles.tweetAuthor]}>@andiliang413</Text>
-                        <Text style={[styles.tweetAuthor]}>6m</Text>
-                    </View>
 
-                    <TouchableOpacity onPress={() => gotoTweet()}>
-                        <Text style={[styles.tweetContent]}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad
-                            dolore error hic itaque libero, molestiae molestias rerum sint! Atque dolorum eius enim hic,
-                            itaque molestiae natus perspiciatis quia similique voluptatibus?</Text>
+                <View style={styles.tweetFooter}>
+                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
+                        <EvilIcons
+                            name="comment"
+                            size={22}
+                            color="gray"
+                            style={styles.mr4}
+                        />
+                        <Text style={[]}>456</Text>
                     </TouchableOpacity>
 
-                    <View style={styles.tweetFooter}>
-                        <TouchableOpacity
-                            style={[styles.row, styles.itemsCenter]}
-                        >
-                            <EvilIcons
-                                name="comment"
-                                size={22}
-                                color="gray"
-                                style={styles.mr4}
-                            />
-                            <Text style={[]}>456</Text>
-                        </TouchableOpacity>
+                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
+                        <EvilIcons
+                            name="retweet"
+                            size={22}
+                            color="gray"
+                            style={styles.mr4}
+                        />
+                        <Text style={[]}>99</Text>
+                    </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.row, styles.itemsCenter]}
-                        >
-                            <EvilIcons
-                                name="retweet"
-                                size={22}
-                                color="gray"
-                                style={styles.mr4}
-                            />
-                            <Text style={[]}>99</Text>
-                        </TouchableOpacity>
+                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
+                        <EvilIcons
+                            name="heart"
+                            size={22}
+                            color="gray"
+                            style={styles.mr4}
+                        />
+                        <Text style={[]}>10</Text>
+                    </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.row, styles.itemsCenter]}
-                        >
-                            <EvilIcons
-                                name="heart"
-                                size={22}
-                                color="gray"
-                                style={styles.mr4}
-                            />
-                            <Text style={[]}>10</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.row, styles.itemsCenter]}
-                        >
-                            <EvilIcons
-                                name={Platform.OS === 'ios' ? 'share-apple' : 'share-google'}
-                                size={22}
-                                color="gray"
-                                style={styles.mr4}
-                            />
-                        </TouchableOpacity>
-
-                    </View>
+                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
+                        <EvilIcons
+                            name={
+                                Platform.OS === 'ios'
+                                    ? 'share-apple'
+                                    : 'share-google'
+                            }
+                            size={22}
+                            color="gray"
+                            style={styles.mr4}
+                        />
+                    </TouchableOpacity>
                 </View>
             </View>
-        )
-    ;
-
+        </View>
+    );
     return (
-        <View style={{marginHorizontal: 30}}>
+        <View style={{ marginHorizontal: 30 }}>
             <FlatList
                 data={DATA}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={(item) => item.id}
                 ItemSeparatorComponent={() => (
                     <View style={styles.tweetSeparator}></View>
                 )}
@@ -157,8 +164,6 @@ function HomeScreen({navigation}) {
             >
                 <AntDesign name="plus" size={26} color="white" />
             </TouchableOpacity>
-
-
         </View>
     );
 }
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     tweetProfile: {
         width: 42,
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
     },
     tweetsHeader: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     tweetContent: {
         marginVertical: 1,
@@ -203,22 +208,22 @@ const styles = StyleSheet.create({
     tweetFooter: {
         marginTop: 5,
         flexDirection: 'row',
-        justifyContent: "space-between"
+        justifyContent: 'space-between',
     },
     tweetSeparator: {
         borderBottomWidth: 1,
         borderBottomColor: '#e5e7eb',
     },
     row: {
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     mr4: {
         marginRight: 4,
     },
     itemsCenter: {
-        alignItems: 'center'
+        alignItems: 'center',
     },
-    floatingButton:{
+    floatingButton: {
         width: 60,
         height: 60,
         borderRadius: 30,
@@ -228,6 +233,5 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         right: 12,
-    }
-
+    },
 });

@@ -1,18 +1,26 @@
 import React from 'react';
-import {Image, Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {Entypo, EvilIcons} from '@expo/vector-icons';
+import {
+    Image,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { Entypo, EvilIcons } from '@expo/vector-icons';
 
 function TweetScreen(props) {
     return (
         <View style={styles.container}>
-
             <View style={styles.header}>
                 <View style={styles.author}>
                     <TouchableOpacity>
                         <Image
                             style={styles.avatar}
                             source={{
-                                uri: `https://i.pravatar.cc/64?u=${Math.floor(Math.random() * 100000)}`,
+                                uri: `https://i.pravatar.cc/64?u=${Math.floor(
+                                    Math.random() * 100000
+                                )}`,
                             }}
                         />
                     </TouchableOpacity>
@@ -22,19 +30,17 @@ function TweetScreen(props) {
                     </View>
                 </View>
                 <View>
-                    <Entypo
-                        name="dots-three-vertical"
-                        size={22}
-                        color="gray"
-                    />
+                    <Entypo name="dots-three-vertical" size={22} color="gray" />
                 </View>
             </View>
 
             <View style={styles.contentContainer}>
                 <Text style={styles.content}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto cupiditate, dolorum eligendi
-                    expedita nemo numquam perspiciatis placeat praesentium qui quisquam quos recusandae sapiente
-                    similique temporibus voluptatibus! Amet assumenda ipsam voluptatum!
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Architecto cupiditate, dolorum eligendi expedita nemo
+                    numquam perspiciatis placeat praesentium qui quisquam quos
+                    recusandae sapiente similique temporibus voluptatibus! Amet
+                    assumenda ipsam voluptatum!
                 </Text>
             </View>
 
@@ -57,25 +63,28 @@ function TweetScreen(props) {
 
             <View style={styles.footer}>
                 <TouchableOpacity>
-                    <EvilIcons name="comment" size={32} color="gray"/>
+                    <EvilIcons name="comment" size={32} color="gray" />
                 </TouchableOpacity>
                 <TouchableOpacity>
-                    <EvilIcons name="retweet" size={32} color="gray"/>
+                    <EvilIcons name="retweet" size={32} color="gray" />
                 </TouchableOpacity>
                 <TouchableOpacity>
-                    <EvilIcons name="heart" size={32} color="gray"/>
+                    <EvilIcons name="heart" size={32} color="gray" />
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <EvilIcons
-                        name={Platform.OS === 'ios' ? 'share-apple' : 'share-google'}
+                        name={
+                            Platform.OS === 'ios'
+                                ? 'share-apple'
+                                : 'share-google'
+                        }
                         size={32}
                         color="gray"
                     />
                 </TouchableOpacity>
             </View>
         </View>
-    )
-        ;
+    );
 }
 
 export default TweetScreen;
@@ -86,10 +95,10 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: 'row',
-        justifyContent: "space-between"
+        justifyContent: 'space-between',
     },
     author: {
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
 
     authorName: {
@@ -100,7 +109,6 @@ const styles = StyleSheet.create({
         color: 'gray',
         marginTop: 4,
     },
-
 
     avatar: {
         width: 50,
@@ -144,11 +152,11 @@ const styles = StyleSheet.create({
     },
 
     footer: {
-        alignItems:'center',
-        justifyContent:'space-around',
+        alignItems: 'center',
+        justifyContent: 'space-around',
         flexDirection: 'row',
         paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#e5e7eb',
-    }
-})
+    },
+});
