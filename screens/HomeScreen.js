@@ -58,6 +58,10 @@ function HomeScreen({navigation}) {
         navigation.navigate('Tweet Screen')
     }
 
+    function gotoNewTweet(){
+        navigation.navigate('New Tweet')
+    }
+
     const renderItem = ({item}) => (
 
             <View style={styles.tweetContainer}>
@@ -69,7 +73,7 @@ function HomeScreen({navigation}) {
                         }}
                     />
                 </TouchableOpacity>
-                <View>
+                <View style={{flex:1}}>
                     <View style={styles.tweetsHeader}>
                         <Text style={[styles.mr8, styles.tweetTitle]}>{item.title}</Text>
                         <Text style={[styles.mr8, styles.tweetAuthor]}>@andiliang413</Text>
@@ -129,7 +133,6 @@ function HomeScreen({navigation}) {
                                 style={styles.mr4}
                             />
                         </TouchableOpacity>
-
 
                     </View>
                 </View>
@@ -200,7 +203,6 @@ const styles = StyleSheet.create({
     tweetFooter: {
         marginTop: 5,
         flexDirection: 'row',
-        flexWrap:'wrap',
         justifyContent: "space-between"
     },
     tweetSeparator: {
