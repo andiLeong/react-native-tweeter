@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     FlatList,
     Image,
     Platform,
@@ -10,50 +11,56 @@ import {
 } from 'react-native';
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import axios from 'axios';
 
 function HomeScreen({ navigation }) {
-    const DATA = [
-        {
-            id: '1',
-            title: 'First Item',
-        },
-        {
-            id: '2',
-            title: 'Second Item',
-        },
-        {
-            id: '3',
-            title: 'Third Item',
-        },
-        {
-            id: '4',
-            title: 'Four Item',
-        },
-        {
-            id: '5',
-            title: 'Fifth Item',
-        },
-        {
-            id: '6',
-            title: 'Sixth Item',
-        },
-        {
-            id: '7',
-            title: 'Seventh Item',
-        },
-        {
-            id: '8',
-            title: 'Eighth Item',
-        },
-        {
-            id: '9',
-            title: 'Ninth Item',
-        },
-        {
-            id: '10',
-            title: 'Tenth Item',
-        },
-    ];
+    const [tweets, setTweets] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [noMoreTweets, setNoMoreTweets] = useState(false);
+    const [page, setPage] = useState(1);
+
+    useEffect(() => {
+        fetchTweets();
+    }, [page]);
+
+    function fetchTweets() {
+        axios
+            .get(`http://twitter.andiliang.com/api/tweets?page=${page}`)
+            .then(response => {
+                if (page === 1) {
+                    setTweets(response.data.data);
+                } else {
+                    setTweets([...tweets, ...response.data.data]);
+                }
+
+                if (response.data.data.length === 0) {
+                    setNoMoreTweets(true);
+                }
+
+                setLoading(false);
+                setRefreshing(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(false);
+                setRefreshing(false);
+            });
+    }
+
+    function pull() {
+        setPage(1);
+        setNoMoreTweets(false);
+        console.log('on refreshing');
+        setRefreshing(true);
+        fetchTweets();
+    }
+
+    function goToNextPage() {
+        let next = page + 1;
+        console.log('on page ' + page + ' fetching data from page ' + next);
+        setPage(page + 1);
+    }
 
     function gotoProfile() {
         navigation.navigate('Profile Screen');
@@ -73,31 +80,24 @@ function HomeScreen({ navigation }) {
                 <Image
                     style={styles.tweetProfile}
                     source={{
-                        uri: `https://i.pravatar.cc/64?u=${Math.floor(
-                            Math.random() * 100000
-                        )}`,
+                        uri: item.user.avatar,
                     }}
                 />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
                 <View style={styles.tweetsHeader}>
                     <Text style={[styles.mr8, styles.tweetTitle]}>
-                        {item.title}
+                        {item.user.name}
                     </Text>
                     <Text style={[styles.mr8, styles.tweetAuthor]}>
-                        @andiliang413
+                        @ {item.user.username}
                     </Text>
                     <Text style={[styles.tweetAuthor]}>6m</Text>
                 </View>
 
                 <TouchableOpacity onPress={() => gotoTweet()}>
-                    <Text style={[styles.tweetContent]}>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Ad dolore error hic itaque libero, molestiae
-                        molestias rerum sint! Atque dolorum eius enim hic,
-                        itaque molestiae natus perspiciatis quia similique
-                        voluptatibus?
-                    </Text>
+                    <Text style={[styles.tweetContent]}>{item.body}</Text>
+                    <Text style={[styles.tweetContent]}>{item.id}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.tweetFooter}>
@@ -148,15 +148,29 @@ function HomeScreen({ navigation }) {
         </View>
     );
     return (
-        <View style={{ marginHorizontal: 30 }}>
-            <FlatList
-                data={DATA}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={() => (
-                    <View style={styles.tweetSeparator}></View>
-                )}
-            />
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+            {loading ? (
+                <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
+            ) : (
+                <FlatList
+                    data={tweets}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.body}
+                    // keyExtractor={item => item.id.toString()}
+                    ItemSeparatorComponent={() => (
+                        <View style={styles.tweetSeparator}></View>
+                    )}
+                    refreshing={refreshing}
+                    onRefresh={pull}
+                    onEndReached={goToNextPage}
+                    onEndReachedThreshold={0}
+                    ListFooterComponent={() =>
+                        !noMoreTweets && (
+                            <ActivityIndicator size="large" color="gray" />
+                        )
+                    }
+                />
+            )}
 
             <TouchableOpacity
                 style={styles.floatingButton}
@@ -177,6 +191,7 @@ const styles = StyleSheet.create({
     },
     tweetContainer: {
         marginVertical: 10,
+        paddingHorizontal: 30,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
