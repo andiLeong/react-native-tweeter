@@ -102,6 +102,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: 'black',
         borderRadius: 24,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     followButtonText: {
         color: 'white',
