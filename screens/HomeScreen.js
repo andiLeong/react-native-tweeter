@@ -80,7 +80,6 @@ function HomeScreen({ route, navigation }) {
     function pull() {
         setPage(1);
         setNoMoreTweets(false);
-        console.log('on refreshing');
         setRefreshing(true);
         fetchTweets();
     }
@@ -91,8 +90,8 @@ function HomeScreen({ route, navigation }) {
         setPage(page + 1);
     }
 
-    function gotoProfile() {
-        navigation.navigate('Profile Screen');
+    function gotoProfile(id) {
+        navigation.navigate('Profile Screen', { id });
     }
 
     function gotoTweet(id) {
@@ -107,7 +106,7 @@ function HomeScreen({ route, navigation }) {
 
     const renderItem = ({ item }) => (
         <View style={styles.tweetContainer}>
-            <TouchableOpacity onPress={() => gotoProfile()}>
+            <TouchableOpacity onPress={() => gotoProfile(item.user.id)}>
                 <Image
                     style={styles.tweetProfile}
                     source={{
@@ -117,18 +116,26 @@ function HomeScreen({ route, navigation }) {
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
                 <View style={styles.tweetsHeader}>
-                    <Text style={[styles.mr8, styles.tweetTitle]}>
+                    <Text
+                        numberOfLines={1}
+                        style={[styles.mr8, styles.tweetTitle]}
+                    >
                         {item.user.name}
                     </Text>
-                    <Text style={[styles.mr8, styles.tweetAuthor]}>
+                    <Text
+                        numberOfLines={1}
+                        style={[styles.mr8, styles.tweetAuthor]}
+                    >
                         @ {item.user.username}
                     </Text>
-                    <Text style={[styles.tweetAuthor]}>6m</Text>
+                    <Text numberOfLines={1} style={[styles.tweetAuthor]}>
+                        6m
+                    </Text>
                 </View>
 
                 <TouchableOpacity onPress={() => gotoTweet(item.id)}>
                     <Text style={[styles.tweetContent]}>{item.body}</Text>
-                    {/*<Text style={[styles.tweetContent]}>{item.id}</Text>*/}
+                    <Text style={[styles.tweetContent]}>{item.id}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.tweetFooter}>
@@ -246,6 +253,7 @@ const styles = StyleSheet.create({
     tweetsHeader: {
         display: 'flex',
         flexDirection: 'row',
+        flexWrap: 'wrap',
     },
     tweetContent: {
         marginVertical: 1,

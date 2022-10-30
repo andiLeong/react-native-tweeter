@@ -9,41 +9,27 @@ import {
     View,
 } from 'react-native';
 import { Entypo, EvilIcons } from '@expo/vector-icons';
-import axiosConfig from '../helper/axiosConfig';
 import { format } from 'date-fns';
+import useAxiosGet from '../hooks/useAxiosGet';
 
-function TweetScreen({ route }) {
-    const [tweet, setTweet] = useState(null);
-    const [loading, setLoading] = useState(true);
+function TweetScreen({ route, navigation }) {
+    const [tweet, loading] = useAxiosGet(`/api/tweets/${route.params.id}`);
 
-    useEffect(() => {
-        fetchTweet();
-        console.log(route.params.id);
-    }, []);
-
-    function fetchTweet() {
-        setLoading(true);
-        axiosConfig
-            .get(`/api/tweets/${route.params.id}`)
-            .then(response => {
-                setTweet(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.log(error);
-                setLoading(false);
-            });
+    function gotoProfile(id) {
+        navigation.navigate('Profile Screen', { id });
     }
 
     return (
         <View style={styles.container}>
-            {loading ? (
+            {loading && tweet === null ? (
                 <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
             ) : (
                 <>
                     <View style={styles.header}>
                         <View style={styles.author}>
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => gotoProfile(tweet.user.id)}
+                            >
                                 <Image
                                     style={styles.avatar}
                                     source={{
@@ -52,7 +38,10 @@ function TweetScreen({ route }) {
                                 />
                             </TouchableOpacity>
                             <View>
-                                <Text style={styles.authorName}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.authorName}
+                                >
                                     {tweet.user.name}
                                 </Text>
                                 <Text style={styles.authorId}>
@@ -151,10 +140,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     author: {
+        // flex: 1,
+        flexWrap: 'wrap',
         flexDirection: 'row',
     },
 
     authorName: {
+        // flexWrap: 'wrap',
         fontWeight: 'bold',
         color: '#222222',
     },

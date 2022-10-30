@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Image,
     Linking,
     StyleSheet,
@@ -8,71 +9,103 @@ import {
     View,
 } from 'react-native';
 import { EvilIcons } from '@expo/vector-icons';
+import useAxiosGet from '../hooks/useAxiosGet';
+import { format } from 'date-fns';
 
-function ProfileScreen(props) {
+function ProfileScreen({ route }) {
+    const [user, loading] = useAxiosGet(`/api/user/${route.params.id}`);
+
     return (
         <View>
-            <Image
-                style={styles.backgroundImage}
-                source={{
-                    uri: `https://images.unsplash.com/photo-1588421357574-87938a86fa28?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80`,
-                }}
-            />
-            <View style={{ paddingHorizontal: 10 }}>
-                <View style={styles.avatarContainer}>
+            {loading && user === null ? (
+                <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
+            ) : (
+                <>
                     <Image
-                        style={styles.avatar}
+                        style={styles.backgroundImage}
                         source={{
-                            uri: `https://i.pravatar.cc/64?u=${Math.floor(
-                                Math.random() * 100000
-                            )}`,
+                            uri: `https://images.unsplash.com/photo-1588421357574-87938a86fa28?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80`,
                         }}
                     />
-                    <TouchableOpacity style={styles.followButton}>
-                        <Text style={styles.followButtonText}>Follow</Text>
-                    </TouchableOpacity>
-                </View>
+                    <View style={{ paddingHorizontal: 10 }}>
+                        <View style={styles.avatarContainer}>
+                            <Image
+                                style={styles.avatar}
+                                source={{
+                                    uri: user.avatar,
+                                }}
+                            />
+                            <TouchableOpacity style={styles.followButton}>
+                                <Text style={styles.followButtonText}>
+                                    Follow
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                {/*<View style={styles.profileContainer}>*/}
-                <Text style={styles.profileName}>Andi Liang</Text>
-                <Text style={styles.profileId}>@andiliang9988</Text>
-                <Text style={styles.bio}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. A
-                    atque aut autem cum deserunt doloribus eaque
-                </Text>
-                {/*</View>*/}
+                        <Text style={styles.profileName}>{user.name}</Text>
+                        <Text style={styles.profileId}>@{user.username}</Text>
+                        {user.bio && <Text style={styles.bio}>{user.bio}</Text>}
 
-                <View style={styles.locationContainer}>
-                    <EvilIcons name="location" size={24} color="gray" />
-                    <Text style={styles.location}>Manila,Philippine</Text>
-                </View>
+                        {user.location && (
+                            <View style={styles.locationContainer}>
+                                <EvilIcons
+                                    name="location"
+                                    size={20}
+                                    color="gray"
+                                />
+                                <Text style={styles.location}>
+                                    {user.location}
+                                </Text>
+                            </View>
+                        )}
 
-                <View style={styles.linkContainer}>
-                    <TouchableOpacity
-                        style={styles.linkItem}
-                        onPress={() => Linking.openURL('https://andiliang.com')}
-                    >
-                        <EvilIcons name="link" size={24} color="gray" />
-                        <Text style={styles.linkText}>andiliang.com</Text>
-                    </TouchableOpacity>
-                    <View style={[styles.linkItem]}>
-                        <EvilIcons name="calendar" size={24} color="gray" />
-                        <Text style={styles.joinDate}>Joined March 2009</Text>
+                        <View style={styles.linkContainer}>
+                            {user.link && (
+                                <TouchableOpacity
+                                    style={styles.linkItem}
+                                    onPress={() => Linking.openURL(user.link)}
+                                >
+                                    <EvilIcons
+                                        name="link"
+                                        size={24}
+                                        color="gray"
+                                    />
+                                    <Text style={styles.linkText}>
+                                        {user.short_link}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+
+                            <View style={[styles.linkItem]}>
+                                <EvilIcons
+                                    name="calendar"
+                                    size={24}
+                                    color="gray"
+                                />
+                                <Text style={styles.joinDate}>
+                                    Joined{' '}
+                                    {format(
+                                        new Date(user.created_at),
+                                        'MMM yyyy'
+                                    )}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.statContainer}>
+                            <View style={styles.stat}>
+                                <Text style={styles.statNumber}>341</Text>
+                                <Text style={styles.statText}>Following</Text>
+                            </View>
+
+                            <View style={styles.stat}>
+                                <Text style={styles.statNumber}>39</Text>
+                                <Text style={styles.statText}>Followers</Text>
+                            </View>
+                        </View>
                     </View>
-                </View>
-
-                <View style={styles.statContainer}>
-                    <View style={styles.stat}>
-                        <Text style={styles.statNumber}>341</Text>
-                        <Text style={styles.statText}>Following</Text>
-                    </View>
-
-                    <View style={styles.stat}>
-                        <Text style={styles.statNumber}>39</Text>
-                        <Text style={styles.statText}>Followers</Text>
-                    </View>
-                </View>
-            </View>
+                </>
+            )}
         </View>
     );
 }
@@ -119,11 +152,13 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
         color: '#222222',
+        paddingLeft: 5,
     },
 
     profileId: {
         marginTop: 2,
         color: 'gray',
+        paddingLeft: 5,
     },
 
     joinDate: {
@@ -160,7 +195,7 @@ const styles = StyleSheet.create({
     },
 
     linkText: {
-        color: 'blue',
+        color: '#38bdf8',
     },
 
     stat: {
