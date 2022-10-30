@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Image,
     Platform,
     StyleSheet,
@@ -8,81 +9,133 @@ import {
     View,
 } from 'react-native';
 import { Entypo, EvilIcons } from '@expo/vector-icons';
+import axiosConfig from '../helper/axiosConfig';
+import { format } from 'date-fns';
 
-function TweetScreen(props) {
+function TweetScreen({ route }) {
+    const [tweet, setTweet] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTweet();
+        console.log(route.params.id);
+    }, []);
+
+    function fetchTweet() {
+        setLoading(true);
+        axiosConfig
+            .get(`/api/tweets/${route.params.id}`)
+            .then(response => {
+                setTweet(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(false);
+            });
+    }
+
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.author}>
-                    <TouchableOpacity>
-                        <Image
-                            style={styles.avatar}
-                            source={{
-                                uri: `https://i.pravatar.cc/64?u=${Math.floor(
-                                    Math.random() * 100000
-                                )}`,
-                            }}
-                        />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.authorName}>Andi Liang</Text>
-                        <Text style={styles.authorId}>@andiliang413</Text>
+            {loading ? (
+                <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
+            ) : (
+                <>
+                    <View style={styles.header}>
+                        <View style={styles.author}>
+                            <TouchableOpacity>
+                                <Image
+                                    style={styles.avatar}
+                                    source={{
+                                        uri: tweet.user.avatar,
+                                    }}
+                                />
+                            </TouchableOpacity>
+                            <View>
+                                <Text style={styles.authorName}>
+                                    {tweet.user.name}
+                                </Text>
+                                <Text style={styles.authorId}>
+                                    @{tweet.user.username}
+                                </Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Entypo
+                                name="dots-three-vertical"
+                                size={22}
+                                color="gray"
+                            />
+                        </View>
                     </View>
-                </View>
-                <View>
-                    <Entypo name="dots-three-vertical" size={22} color="gray" />
-                </View>
-            </View>
 
-            <View style={styles.contentContainer}>
-                <Text style={styles.content}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Architecto cupiditate, dolorum eligendi expedita nemo
-                    numquam perspiciatis placeat praesentium qui quisquam quos
-                    recusandae sapiente similique temporibus voluptatibus! Amet
-                    assumenda ipsam voluptatum!
-                </Text>
-            </View>
+                    <View style={styles.contentContainer}>
+                        <Text style={styles.content}>{tweet.body}</Text>
+                        <View style={styles.tweetTimestampContainer}>
+                            <Text style={styles.tweetTimestampText}>
+                                {format(new Date(tweet.created_at), 'h:mm a')}
+                            </Text>
+                            <Text style={styles.tweetTimestampText}>
+                                &middot;
+                            </Text>
+                            <Text style={styles.tweetTimestampText}>
+                                {format(new Date(tweet.created_at), 'd MMM.yy')}
+                            </Text>
+                            <Text style={styles.tweetTimestampText}>
+                                &middot;
+                            </Text>
+                            <Text
+                                style={[
+                                    styles.tweetTimestampText,
+                                    styles.linkColor,
+                                ]}
+                            >
+                                Twitter for iPhone
+                            </Text>
+                        </View>
+                    </View>
 
-            <View style={styles.statContainer}>
-                <View style={styles.stat}>
-                    <Text style={styles.statNumber}>612</Text>
-                    <Text style={styles.statText}>Retweets</Text>
-                </View>
+                    <View style={styles.statContainer}>
+                        <View style={styles.stat}>
+                            <Text style={styles.statNumber}>612</Text>
+                            <Text style={styles.statText}>Retweets</Text>
+                        </View>
 
-                <View style={styles.stat}>
-                    <Text style={styles.statNumber}>8</Text>
-                    <Text style={styles.statText}>Quote Retweets</Text>
-                </View>
+                        <View style={styles.stat}>
+                            <Text style={styles.statNumber}>8</Text>
+                            <Text style={styles.statText}>Quote Retweets</Text>
+                        </View>
 
-                <View style={styles.stat}>
-                    <Text style={styles.statNumber}>10</Text>
-                    <Text style={styles.statText}>Likes</Text>
-                </View>
-            </View>
+                        <View style={styles.stat}>
+                            <Text style={styles.statNumber}>10</Text>
+                            <Text style={styles.statText}>Likes</Text>
+                        </View>
+                    </View>
 
-            <View style={styles.footer}>
-                <TouchableOpacity>
-                    <EvilIcons name="comment" size={32} color="gray" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <EvilIcons name="retweet" size={32} color="gray" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <EvilIcons name="heart" size={32} color="gray" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <EvilIcons
-                        name={
-                            Platform.OS === 'ios'
-                                ? 'share-apple'
-                                : 'share-google'
-                        }
-                        size={32}
-                        color="gray"
-                    />
-                </TouchableOpacity>
-            </View>
+                    <View style={styles.footer}>
+                        <TouchableOpacity>
+                            <EvilIcons name="comment" size={32} color="gray" />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <EvilIcons name="retweet" size={32} color="gray" />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <EvilIcons name="heart" size={32} color="gray" />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <EvilIcons
+                                name={
+                                    Platform.OS === 'ios'
+                                        ? 'share-apple'
+                                        : 'share-google'
+                                }
+                                size={32}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
         </View>
     );
 }
@@ -158,5 +211,17 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#e5e7eb',
+    },
+
+    tweetTimestampContainer: {
+        flexDirection: 'row',
+        marginTop: 12,
+    },
+    tweetTimestampText: {
+        color: 'gray',
+        marginRight: 6,
+    },
+    linkColor: {
+        color: '#1d9bf1',
     },
 });

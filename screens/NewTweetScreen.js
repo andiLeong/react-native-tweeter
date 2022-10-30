@@ -6,11 +6,14 @@ import {
     TextInput,
     Image,
     TouchableOpacity,
+    Alert,
 } from 'react-native';
+import axiosConfig from '../helper/axiosConfig';
 
 function NewTweetScreen({ navigation }) {
     let max = 280;
     const [tweet, setTweet] = useState('');
+    const [loading, setLoading] = useState(false);
 
     function remaining() {
         return max - tweet.length;
@@ -18,6 +21,29 @@ function NewTweetScreen({ navigation }) {
 
     function gotoProfile() {
         navigation.navigate('Profile Screen');
+    }
+
+    function store() {
+        if (tweet.length === 0) {
+            Alert.alert('Please enter a tweet');
+            return;
+        }
+
+        setLoading(true);
+        axiosConfig
+            .post(`/api/tweets`, {
+                body: tweet,
+            })
+            .then(response => {
+                navigation.navigate('Home1', {
+                    newTweetAdded: response.data,
+                });
+                setLoading(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(false);
+            });
     }
 
     return (
@@ -43,7 +69,13 @@ function NewTweetScreen({ navigation }) {
                     />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.submitButton}>
+                <TouchableOpacity
+                    onPress={() => store()}
+                    style={[
+                        loading ? styles.bgGray : styles.bgBlue,
+                        styles.submitButton,
+                    ]}
+                >
                     <Text style={styles.submitButtonText}>Tweet</Text>
                 </TouchableOpacity>
             </View>
@@ -82,10 +114,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
 
+    bgGray: {
+        backgroundColor: '#d4d4d4',
+    },
+    bgBlue: {
+        backgroundColor: '#1d9bf1',
+    },
     submitButton: {
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: '#1d9bf1',
+        // backgroundColor: '#1d9bf1',
         borderRadius: 24,
         flexDirection: 'row',
         alignItems: 'center',

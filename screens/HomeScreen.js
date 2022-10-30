@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -11,22 +11,51 @@ import {
 } from 'react-native';
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import axios from 'axios';
+import axiosConfig from '../helper/axiosConfig';
 
-function HomeScreen({ navigation }) {
+function HomeScreen({ route, navigation }) {
     const [tweets, setTweets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [noMoreTweets, setNoMoreTweets] = useState(false);
     const [page, setPage] = useState(1);
+    const flatListRef = useRef();
 
     useEffect(() => {
         fetchTweets();
     }, [page]);
 
+    useEffect(() => {
+        if (route.params?.newTweetAdded) {
+            getAllTweetsRefresh();
+            flatListRef.current.scrollToOffset({
+                offset: 0,
+            });
+        }
+    }, [route.params?.newTweetAdded]);
+
+    function getAllTweetsRefresh() {
+        setPage(1);
+        setNoMoreTweets(false);
+        setRefreshing(false);
+
+        axiosConfig
+            .get(`/api/tweets`)
+            .then(response => {
+                setTweets(response.data.data);
+                setLoading(false);
+                setRefreshing(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setLoading(false);
+                setRefreshing(false);
+            });
+    }
+
     function fetchTweets() {
-        axios
-            .get(`http://twitter.andiliang.com/api/tweets?page=${page}`)
+        axiosConfig
+            .get(`/api/tweets?page=${page}`)
             .then(response => {
                 if (page === 1) {
                     setTweets(response.data.data);
@@ -66,8 +95,10 @@ function HomeScreen({ navigation }) {
         navigation.navigate('Profile Screen');
     }
 
-    function gotoTweet() {
-        navigation.navigate('Tweet Screen');
+    function gotoTweet(id) {
+        navigation.navigate('Tweet Screen', {
+            id,
+        });
     }
 
     function gotoNewTweet() {
@@ -95,9 +126,9 @@ function HomeScreen({ navigation }) {
                     <Text style={[styles.tweetAuthor]}>6m</Text>
                 </View>
 
-                <TouchableOpacity onPress={() => gotoTweet()}>
+                <TouchableOpacity onPress={() => gotoTweet(item.id)}>
                     <Text style={[styles.tweetContent]}>{item.body}</Text>
-                    <Text style={[styles.tweetContent]}>{item.id}</Text>
+                    {/*<Text style={[styles.tweetContent]}>{item.id}</Text>*/}
                 </TouchableOpacity>
 
                 <View style={styles.tweetFooter}>
@@ -153,10 +184,10 @@ function HomeScreen({ navigation }) {
                 <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
             ) : (
                 <FlatList
+                    ref={flatListRef}
                     data={tweets}
                     renderItem={renderItem}
-                    keyExtractor={item => item.body}
-                    // keyExtractor={item => item.id.toString()}
+                    keyExtractor={item => item.id.toString()}
                     ItemSeparatorComponent={() => (
                         <View style={styles.tweetSeparator}></View>
                     )}
