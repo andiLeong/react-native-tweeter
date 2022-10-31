@@ -42,7 +42,7 @@ function HomeScreen({ route, navigation }) {
         axiosConfig
             .get(`/api/tweets`)
             .then(response => {
-                setTweets(response.data.data);
+                setTweets(response.data);
                 setLoading(false);
                 setRefreshing(false);
             })
@@ -60,7 +60,12 @@ function HomeScreen({ route, navigation }) {
                 if (page === 1) {
                     setTweets(response.data.data);
                 } else {
-                    setTweets([...tweets, ...response.data.data]);
+                    let results = [...tweets, ...response.data.data].filter(
+                        (value, index, self) =>
+                            index === self.findIndex(t => t.id === value.id)
+                    );
+
+                    setTweets(results);
                 }
 
                 if (response.data.data.length === 0) {
