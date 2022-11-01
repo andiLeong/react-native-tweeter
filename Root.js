@@ -7,19 +7,26 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './context/AuthProvider';
 import AuthStackNavigator from './navigation/AuthStackNavigator';
 import AppStack from './navigation/AppStack';
+import * as SecureStore from 'expo-secure-store';
 
 const Drawer = createDrawerNavigator();
 
 export default function Root() {
     const [isLoading, setIsLoading] = useState(true);
-    const { user } = useContext(AuthContext);
+    const { user, setUser } = useContext(AuthContext);
 
     useEffect(() => {
-        // check if user is logged in or not.
-        // Check SecureStore for the user object/token
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 2000);
+        SecureStore.getItemAsync('user')
+            .then(userString => {
+                if (userString) {
+                    setUser(JSON.parse(userString));
+                }
+                setIsLoading(false);
+            })
+            .catch(error => {
+                console.log(error);
+                setIsLoading(false);
+            });
     }, []);
 
     if (isLoading) {
