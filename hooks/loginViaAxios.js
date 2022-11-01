@@ -6,16 +6,6 @@ function loginViaAxios(
     successCallBack = null,
     failureCallback = null
 ) {
-    // const [response, setResponse] = useState(null);
-    // const [isLoading, setLoading] = useState(loading ?? true);
-    // const [error, setError] = useState(null);
-    // let isLoading = loading ?? true;
-    // let result = null;
-    // let error = null;
-
-    console.log(payload);
-    console.log('payload');
-    console.log('calling post via axios');
     axiosConfig
         .post(url, payload)
         .then(response => {
