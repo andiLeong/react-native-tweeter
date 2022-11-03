@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
         setUser,
         error,
         isLoading,
+        loginSuccess,
         login: (email, password) => {
             appAxios
                 .via('post')

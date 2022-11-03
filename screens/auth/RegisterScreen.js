@@ -10,28 +10,43 @@ import {
 import { AuthContext } from '../../context/AuthProvider';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import appAxios from '../../helper/appAxios';
 
 function RegisterScreen({ navigation }) {
-    // const [email, setEmail] = useState('');
-    // const [name, setName] = useState('');
-    // const [username, setUsername] = useState('');
-    // const [password, setPassword] = useState('');
-    // const [confirmPassword, setConfirmPassword] = useState('');
-    // const { login, error, isLoading } = useContext(AuthContext);
+    const { loginSuccess } = useContext(AuthContext);
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const Validation = yup.object().shape({
-        password: yup
+        password: yup.string().min(3).required(),
+        password_confirmation: yup
             .string()
-            .min(3, 'Too Short!')
-            .required('Password is Required'),
-        email: yup
-            .string()
-            .email('Invalid email')
-            .required('Email is Required'),
+            .oneOf([yup.ref('password')], 'Your passwords do not match')
+            .required('Password needs to confirm'),
+        email: yup.string().email().required(),
+        name: yup.string().required(),
+        username: yup.string().required(),
     });
+
+    function store(values) {
+        values.device_name = 'ios';
+        appAxios
+            .via('post')
+            .to('/api/register')
+            .setPayload(values)
+            .before(() => setIsLoading(true))
+            .onSuccess(({ data }) => {
+                console.log(data);
+                loginSuccess(data);
+            })
+            .onFailure(error => {
+                const key = Object.keys(error.response.data.errors)[0];
+                setError(error.response.data.errors[key][0]);
+            })
+            .after(() => setIsLoading(false))
+            .fire();
+    }
 
     return (
         <View style={styles.container}>
@@ -51,7 +66,7 @@ function RegisterScreen({ navigation }) {
                         password_confirmation: '',
                     }}
                     validationSchema={Validation}
-                    onSubmit={values => console.log(values)}
+                    onSubmit={values => store(values)}
                 >
                     {({
                         handleChange,
