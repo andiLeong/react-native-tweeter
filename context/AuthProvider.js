@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import loginViaAxios from '../hooks/loginViaAxios';
-import axiosConfig from '../helper/axiosConfig';
+import appAxios from '../helper/appAxios';
 
 export const AuthContext = React.createContext();
 
@@ -10,56 +9,47 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    function loginSuccess(user) {
+        SecureStore.setItemAsync('user', JSON.stringify(user));
+        setUser(user);
+    }
+
+    function logoutSuccess() {
+        setError(null);
+        setUser(null);
+        SecureStore.deleteItemAsync('user');
+    }
+
     let config = {
         user,
         setUser,
         error,
         isLoading,
         login: (email, password) => {
-            setIsLoading(true);
-            loginViaAxios(
-                `/api/login`,
-                {
+            appAxios
+                .via('post')
+                .to(`/api/login`)
+                .setPayload({
                     email,
                     password,
                     device_name: 'ios',
-                },
-                ({ data }) => {
-                    let user = data;
-                    console.log(user);
-                    SecureStore.setItemAsync('user', JSON.stringify(user));
-                    setUser(user);
-                    setIsLoading(false);
-                },
-                err => {
-                    console.log(err);
-                    setError(err.response.data.message);
-                    setIsLoading(false);
-                }
-            );
+                })
+                .before(() => setIsLoading(true))
+                .after(() => setIsLoading(false))
+                .onSuccess(({ data }) => loginSuccess(data))
+                .onFailure(err => setError(err.response.data.message))
+                .fire();
         },
         logout: () => {
-            setIsLoading(true);
-            axiosConfig.defaults.headers.common[
-                'Authorization'
-            ] = `Bearer ${user.token}`;
-
-            axiosConfig
-                .post('/api/logout')
-                .then(response => {
-                    console.log('log out success');
-                    setUser(null);
-                    SecureStore.deleteItemAsync('user');
-                    setError(null);
-                    setIsLoading(false);
-                })
-                .catch(error => {
-                    console.log(error);
-                    setUser(null);
-                    SecureStore.deleteItemAsync('user');
-                    setError(error.response.data.message);
-                    setIsLoading(false);
-                });
+            appAxios
+                .via('post')
+                .to(`/api/logout`)
+                .bearToken(user.token)
+                .before(() => setIsLoading(true))
+                .onSuccess(() => logoutSuccess())
+                .onFailure(error => setError(error.response.data.message))
+                .after(() => setIsLoading(false))
+                .fire();
         },
     };
     return (

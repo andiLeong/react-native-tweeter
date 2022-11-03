@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Alert,
 } from 'react-native';
-import axiosConfig from '../helper/axiosConfig';
+import appAxios from '../helper/appAxios';
 
 function NewTweetScreen({ navigation }) {
     let max = 280;
@@ -23,27 +23,29 @@ function NewTweetScreen({ navigation }) {
         navigation.navigate('Profile Screen');
     }
 
+    function newTweetAdded(data) {
+        navigation.navigate('Home1', {
+            newTweetAdded: data,
+        });
+    }
+
     function store() {
         if (tweet.length === 0) {
             Alert.alert('Please enter a tweet');
             return;
         }
 
-        setLoading(true);
-        axiosConfig
-            .post(`/api/tweets`, {
+        appAxios
+            .via('post')
+            .to(`/api/tweets`)
+            .setPayload({
                 body: tweet,
             })
-            .then(response => {
-                navigation.navigate('Home1', {
-                    newTweetAdded: response.data,
-                });
-                setLoading(false);
-            })
-            .catch(error => {
-                console.log(error);
-                setLoading(false);
-            });
+            .before(() => setLoading(true))
+            .onSuccess(response => newTweetAdded(response.data))
+            .onFailure(error => console.log(error))
+            .after(() => setLoading(false))
+            .fire();
     }
 
     return (

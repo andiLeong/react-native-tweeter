@@ -8,11 +8,22 @@ import {
     View,
 } from 'react-native';
 import { AuthContext } from '../../context/AuthProvider';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
 function LoginScreen({ navigation }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const { login, error, isLoading } = useContext(AuthContext);
+
+    const Validation = yup.object().shape({
+        password: yup
+            .string()
+            .min(3, 'Too Short!')
+            .required('Password is Required'),
+        email: yup
+            .string()
+            .email('Invalid email')
+            .required('Email is Required'),
+    });
 
     return (
         <View style={styles.container}>
@@ -22,43 +33,80 @@ function LoginScreen({ navigation }) {
                         {error}
                     </Text>
                 )}
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setEmail}
-                    value={email}
-                    placeholder="Email"
-                    placeholderTextColor="gray"
-                    textContentType="emailAddress"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-                <TextInput
-                    style={styles.input}
-                    onChangeText={setPassword}
-                    value={password}
-                    placeholder="Password"
-                    placeholderTextColor="gray"
-                    autoCapitalize="none"
-                    secureTextEntry={true}
-                />
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => login(email, password)}
-                    disabled={isLoading}
+
+                <Formik
+                    initialValues={{ email: '', password: '' }}
+                    validationSchema={Validation}
+                    onSubmit={values => login(values.email, values.password)}
                 >
-                    {isLoading && (
-                        <ActivityIndicator
-                            style={{ marginRight: 8 }}
-                            size="small"
-                            color="white"
-                        />
+                    {({
+                        handleChange,
+                        handleBlur,
+                        handleSubmit,
+                        values,
+                        errors,
+                        touched,
+                    }) => (
+                        <>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={handleChange('email')}
+                                onBlur={handleBlur('email')}
+                                value={values.email}
+                                placeholder="Email"
+                                placeholderTextColor="gray"
+                                textContentType="emailAddress"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+
+                            {touched.email && errors.email && (
+                                <Text style={styles.validationError}>
+                                    {errors.email}
+                                </Text>
+                            )}
+
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={handleChange('password')}
+                                onBlur={handleBlur('password')}
+                                value={values.password}
+                                placeholder="Password"
+                                placeholderTextColor="gray"
+                                autoCapitalize="none"
+                                secureTextEntry={true}
+                            />
+
+                            {touched.password && errors.password && (
+                                <Text style={styles.validationError}>
+                                    {errors.password}
+                                </Text>
+                            )}
+
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={handleSubmit}
+                                disabled={isLoading}
+                            >
+                                {isLoading && (
+                                    <ActivityIndicator
+                                        style={{ marginRight: 8 }}
+                                        size="small"
+                                        color="white"
+                                    />
+                                )}
+                                <Text
+                                    style={{
+                                        color: 'white',
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    Login
+                                </Text>
+                            </TouchableOpacity>
+                        </>
                     )}
-                    <Text
-                        style={{ color: 'white', textTransform: 'uppercase' }}
-                    >
-                        Login
-                    </Text>
-                </TouchableOpacity>
+                </Formik>
 
                 <View style={styles.registerButtonContainer}>
                     <Text style={{ color: 'white' }}>No account ? </Text>
@@ -108,5 +156,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: 15,
         alignSelf: 'center',
+    },
+    validationError: {
+        color: 'red',
+        marginTop: 5,
     },
 });

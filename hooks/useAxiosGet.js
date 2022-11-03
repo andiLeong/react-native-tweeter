@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axiosConfig from '../helper/axiosConfig';
+import appAxios from '../helper/appAxios';
 
 function useAxiosGet(url, loading = null, successCallBack = null) {
     const [items, setItems] = useState(null);
@@ -7,21 +7,22 @@ function useAxiosGet(url, loading = null, successCallBack = null) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        axiosConfig
-            .get(url)
-            .then(response => {
-                // console.log(response.data);
+        appAxios
+            .via('get')
+            .to(url)
+            .onSuccess(response => {
                 if (successCallBack !== null) {
                     successCallBack(response);
                 }
                 setItems(response.data);
                 setLoading(false);
             })
-            .catch(error => {
+            .onFailure(error => {
                 console.log(error);
                 setError(error);
-                setLoading(false);
-            });
+            })
+            .after(() => setLoading(false))
+            .fire();
     }, [url]);
 
     return [items, isLoading, error];

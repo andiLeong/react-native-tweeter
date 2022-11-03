@@ -42,7 +42,7 @@ function HomeScreen({ route, navigation }) {
         axiosConfig
             .get(`/api/tweets`)
             .then(response => {
-                setTweets(response.data);
+                setTweets(response.data.data);
                 setLoading(false);
                 setRefreshing(false);
             })
