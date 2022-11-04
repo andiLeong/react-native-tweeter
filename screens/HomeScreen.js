@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -12,6 +12,8 @@ import {
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import axiosConfig from '../helper/axiosConfig';
+import LikeButton from '../component/LikeButton';
+import { AuthContext } from '../context/AuthProvider';
 
 function HomeScreen({ route, navigation }) {
     const [tweets, setTweets] = useState([]);
@@ -19,6 +21,7 @@ function HomeScreen({ route, navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [noMoreTweets, setNoMoreTweets] = useState(false);
     const [page, setPage] = useState(1);
+    const { user: loginUser } = useContext(AuthContext);
     const flatListRef = useRef();
 
     useEffect(() => {
@@ -39,6 +42,10 @@ function HomeScreen({ route, navigation }) {
         setNoMoreTweets(false);
         setRefreshing(false);
 
+        axiosConfig.defaults.headers.common[
+            'Authorization'
+        ] = `Bearer ${loginUser.token}`;
+
         axiosConfig
             .get(`/api/tweets`)
             .then(response => {
@@ -54,6 +61,10 @@ function HomeScreen({ route, navigation }) {
     }
 
     function fetchTweets() {
+        axiosConfig.defaults.headers.common[
+            'Authorization'
+        ] = `Bearer ${loginUser.token}`;
+
         axiosConfig
             .get(`/api/tweets?page=${page}`)
             .then(response => {
@@ -144,35 +155,33 @@ function HomeScreen({ route, navigation }) {
                 </TouchableOpacity>
 
                 <View style={styles.tweetFooter}>
-                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
-                        <EvilIcons
-                            name="comment"
-                            size={22}
-                            color="gray"
-                            style={styles.mr4}
-                        />
+                    <View style={[styles.row, styles.itemsCenter]}>
+                        <TouchableOpacity>
+                            <EvilIcons
+                                name="comment"
+                                size={22}
+                                color="gray"
+                                style={styles.mr4}
+                            />
+                        </TouchableOpacity>
                         <Text style={[]}>456</Text>
-                    </TouchableOpacity>
+                    </View>
 
-                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
-                        <EvilIcons
-                            name="retweet"
-                            size={22}
-                            color="gray"
-                            style={styles.mr4}
-                        />
+                    <View style={[styles.row, styles.itemsCenter]}>
+                        <TouchableOpacity>
+                            <EvilIcons
+                                name="retweet"
+                                size={22}
+                                color="gray"
+                                style={styles.mr4}
+                            />
+                        </TouchableOpacity>
                         <Text style={[]}>99</Text>
-                    </TouchableOpacity>
+                    </View>
 
-                    <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
-                        <EvilIcons
-                            name="heart"
-                            size={22}
-                            color="gray"
-                            style={styles.mr4}
-                        />
-                        <Text style={[]}>10</Text>
-                    </TouchableOpacity>
+                    <View style={[styles.row, styles.itemsCenter]}>
+                        <LikeButton tweet={item} />
+                    </View>
 
                     <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
                         <EvilIcons
