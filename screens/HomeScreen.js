@@ -91,7 +91,7 @@ function HomeScreen({ route, navigation }) {
 
     function goToNextPage() {
         let next = page + 1;
-        console.log('on page ' + page + ' fetching data from page ' + next);
+        // console.log('on page ' + page + ' fetching data from page ' + next);
         setPage(page + 1);
     }
 

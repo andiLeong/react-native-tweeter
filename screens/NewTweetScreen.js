@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     Text,
     View,
@@ -9,11 +9,13 @@ import {
     Alert,
 } from 'react-native';
 import appAxios from '../helper/appAxios';
+import { AuthContext } from '../context/AuthProvider';
 
 function NewTweetScreen({ navigation }) {
     let max = 280;
     const [tweet, setTweet] = useState('');
     const [loading, setLoading] = useState(false);
+    const { user } = useContext(AuthContext);
 
     function remaining() {
         return max - tweet.length;
@@ -36,6 +38,7 @@ function NewTweetScreen({ navigation }) {
         }
 
         appAxios
+            .bearToken(user.token)
             .via('post')
             .to(`/api/tweets`)
             .setPayload({

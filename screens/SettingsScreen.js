@@ -9,6 +9,7 @@ function SettingsScreen(props) {
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
             <Text>This is Setting screen</Text>
+            {/*<Text>{user.token}</Text>*/}
 
             <Button onPress={() => logout()} title="logout" />
         </View>

@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     function logoutSuccess() {
-        setError(null);
         setUser(null);
         SecureStore.deleteItemAsync('user');
     }
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }) => {
                 .bearToken(user.token)
                 .before(() => setIsLoading(true))
                 .onSuccess(() => logoutSuccess())
-                .onFailure(error => setError(error.response.data.message))
+                .onFailure(error => logoutSuccess())
                 .after(() => setIsLoading(false))
                 .fire();
         },

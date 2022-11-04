@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Image,
@@ -11,13 +11,23 @@ import {
 import { EvilIcons } from '@expo/vector-icons';
 import useAxiosGet from '../hooks/useAxiosGet';
 import { format } from 'date-fns';
+import { AuthContext } from '../context/AuthProvider';
+import FollowButton from '../component/FollowButton';
 
 function ProfileScreen({ route }) {
-    const [user, loading] = useAxiosGet(`/api/user/${route.params.id}`);
+    const { user } = useContext(AuthContext);
+    const [fetch, setFetch] = useState(false);
+
+    const [profileUser, loading] = useAxiosGet(
+        `/api/user/${route.params.id}?fetch=${fetch}`,
+        null,
+        null,
+        user.token
+    );
 
     return (
         <View>
-            {loading && user === null ? (
+            {loading && profileUser === null ? (
                 <ActivityIndicator size="large" style={{ paddingTop: 20 }} />
             ) : (
                 <>
@@ -32,21 +42,29 @@ function ProfileScreen({ route }) {
                             <Image
                                 style={styles.avatar}
                                 source={{
-                                    uri: user.avatar,
+                                    uri: profileUser.avatar,
                                 }}
                             />
-                            <TouchableOpacity style={styles.followButton}>
-                                <Text style={styles.followButtonText}>
-                                    Follow
-                                </Text>
-                            </TouchableOpacity>
+
+                            {user.user.id !== profileUser.id && (
+                                <FollowButton
+                                    setFetch={setFetch}
+                                    user={profileUser}
+                                />
+                            )}
                         </View>
 
-                        <Text style={styles.profileName}>{user.name}</Text>
-                        <Text style={styles.profileId}>@{user.username}</Text>
-                        {user.bio && <Text style={styles.bio}>{user.bio}</Text>}
+                        <Text style={styles.profileName}>
+                            {profileUser.name}
+                        </Text>
+                        <Text style={styles.profileId}>
+                            @{profileUser.username}
+                        </Text>
+                        {profileUser.bio && (
+                            <Text style={styles.bio}>{profileUser.bio}</Text>
+                        )}
 
-                        {user.location && (
+                        {profileUser.location && (
                             <View style={styles.locationContainer}>
                                 <EvilIcons
                                     name="location"
@@ -54,16 +72,18 @@ function ProfileScreen({ route }) {
                                     color="gray"
                                 />
                                 <Text style={styles.location}>
-                                    {user.location}
+                                    {profileUser.location}
                                 </Text>
                             </View>
                         )}
 
                         <View style={styles.linkContainer}>
-                            {user.link && (
+                            {profileUser.link && (
                                 <TouchableOpacity
                                     style={styles.linkItem}
-                                    onPress={() => Linking.openURL(user.link)}
+                                    onPress={() =>
+                                        Linking.openURL(profileUser.link)
+                                    }
                                 >
                                     <EvilIcons
                                         name="link"
@@ -71,7 +91,7 @@ function ProfileScreen({ route }) {
                                         color="gray"
                                     />
                                     <Text style={styles.linkText}>
-                                        {user.short_link}
+                                        {profileUser.short_link}
                                     </Text>
                                 </TouchableOpacity>
                             )}
@@ -85,7 +105,7 @@ function ProfileScreen({ route }) {
                                 <Text style={styles.joinDate}>
                                     Joined{' '}
                                     {format(
-                                        new Date(user.created_at),
+                                        new Date(profileUser.created_at),
                                         'MMM yyyy'
                                     )}
                                 </Text>
@@ -94,12 +114,16 @@ function ProfileScreen({ route }) {
 
                         <View style={styles.statContainer}>
                             <View style={styles.stat}>
-                                <Text style={styles.statNumber}>341</Text>
+                                <Text style={styles.statNumber}>
+                                    {profileUser.follow_count}
+                                </Text>
                                 <Text style={styles.statText}>Following</Text>
                             </View>
 
                             <View style={styles.stat}>
-                                <Text style={styles.statNumber}>39</Text>
+                                <Text style={styles.statNumber}>
+                                    {profileUser.being_follow_count}
+                                </Text>
                                 <Text style={styles.statText}>Followers</Text>
                             </View>
                         </View>
@@ -130,20 +154,6 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 40,
     },
-    followButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        backgroundColor: 'black',
-        borderRadius: 24,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    followButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
-
     profileContainer: {
         marginTop: 10,
     },
