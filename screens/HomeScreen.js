@@ -30,7 +30,6 @@ function HomeScreen({ route, navigation }) {
 
     useEffect(() => {
         if (route.params?.newTweetAdded || route.params?.tweetDeleted) {
-            console.log('tweet deleted');
             getAllTweetsRefresh();
             flatListRef.current.scrollToOffset({
                 offset: 0,

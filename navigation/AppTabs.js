@@ -3,6 +3,7 @@ import HomeScreen from '../screens/HomeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import SearchScreen from '../screens/SearchScreen';
 import NotificationScreen from '../screens/NotificationsScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 function AppTabs() {
     const Tab = createBottomTabNavigator();
@@ -10,7 +11,7 @@ function AppTabs() {
     return (
         <Tab.Navigator
             screenOptions={{
-                headerShown: false,
+                headerShown: true,
                 tabBarShowLabel: false,
             }}
         >
@@ -39,6 +40,19 @@ function AppTabs() {
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons
                             name="notifications"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Setting Screen"
+                component={SettingsScreen}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons
+                            name="ios-settings"
                             size={size}
                             color={color}
                         />
