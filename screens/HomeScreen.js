@@ -29,13 +29,14 @@ function HomeScreen({ route, navigation }) {
     }, [page]);
 
     useEffect(() => {
-        if (route.params?.newTweetAdded) {
+        if (route.params?.newTweetAdded || route.params?.tweetDeleted) {
+            console.log('tweet deleted');
             getAllTweetsRefresh();
             flatListRef.current.scrollToOffset({
                 offset: 0,
             });
         }
-    }, [route.params?.newTweetAdded]);
+    }, [route.params?.newTweetAdded, route.params?.tweetDeleted]);
 
     function getAllTweetsRefresh() {
         setPage(1);

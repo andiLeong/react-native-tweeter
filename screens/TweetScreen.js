@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext, useRef } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Image,
     Platform,
     StyleSheet,
@@ -8,15 +9,49 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Entypo, EvilIcons } from '@expo/vector-icons';
+import { AntDesign, Entypo, EvilIcons } from '@expo/vector-icons';
 import { format } from 'date-fns';
 import useAxiosGet from '../hooks/useAxiosGet';
+import { AuthContext } from '../context/AuthProvider';
+import { Modalize } from 'react-native-modalize';
+import AppAxios from '../helper/appAxios';
 
 function TweetScreen({ route, navigation }) {
     const [tweet, loading] = useAxiosGet(`/api/tweets/${route.params.id}`);
+    const modal = useRef(null);
+    const { user: loginUser } = useContext(AuthContext);
 
     function gotoProfile(id) {
         navigation.navigate('Profile Screen', { id });
+    }
+
+    function deleteTweet() {
+        AppAxios.bearToken(loginUser.token)
+            .via('delete')
+            .to(`/api/tweets/${tweet.id}`)
+            .onSuccess(() => {
+                Alert.alert('Tweet was deleted.');
+                navigation.navigate('Home1', {
+                    tweetDeleted: Date.now(),
+                });
+            })
+            .onFailure(err => console.log(err.response.data))
+            .fire();
+    }
+
+    function showAlert() {
+        Alert.alert('Delete this tweet?', null, [
+            {
+                text: 'Cancel',
+                onPress: () => modal.current?.close(),
+                style: 'cancel',
+            },
+            {
+                text: 'OK',
+                onPress: () => deleteTweet(),
+                style: 'default',
+            },
+        ]);
     }
 
     return (
@@ -50,11 +85,15 @@ function TweetScreen({ route, navigation }) {
                             </View>
                         </View>
                         <View>
-                            <Entypo
-                                name="dots-three-vertical"
-                                size={22}
-                                color="gray"
-                            />
+                            <TouchableOpacity
+                                onPress={() => modal.current?.open()}
+                            >
+                                <Entypo
+                                    name="dots-three-vertical"
+                                    size={22}
+                                    color="gray"
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
 
@@ -123,6 +162,41 @@ function TweetScreen({ route, navigation }) {
                             />
                         </TouchableOpacity>
                     </View>
+
+                    <Modalize ref={modal} snapPoint={8}>
+                        <View
+                            style={{
+                                paddingHorizontal: 24,
+                                paddingVertical: 32,
+                            }}
+                        >
+                            <TouchableOpacity style={styles.menuButton}>
+                                <AntDesign
+                                    name="pushpino"
+                                    size={24}
+                                    color="#222"
+                                />
+                                <Text style={styles.menuButtonText}>
+                                    Pin Tweet
+                                </Text>
+                            </TouchableOpacity>
+                            {tweet.user_id === loginUser.user.id && (
+                                <TouchableOpacity
+                                    onPress={showAlert}
+                                    style={[styles.menuButton, styles.mt6]}
+                                >
+                                    <AntDesign
+                                        name="delete"
+                                        size={24}
+                                        color="#222"
+                                    />
+                                    <Text style={styles.menuButtonText}>
+                                        Delete Tweet
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </Modalize>
                 </>
             )}
         </View>
@@ -133,7 +207,7 @@ export default TweetScreen;
 
 const styles = StyleSheet.create({
     container: {
-        margin: 20,
+        padding: 20,
     },
     header: {
         flexDirection: 'row',
@@ -215,5 +289,17 @@ const styles = StyleSheet.create({
     },
     linkColor: {
         color: '#1d9bf1',
+    },
+    mt6: {
+        marginTop: 32,
+    },
+    menuButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    menuButtonText: {
+        fontSize: 20,
+        color: '#222',
+        marginLeft: 12,
     },
 });
