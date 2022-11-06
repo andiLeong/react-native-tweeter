@@ -135,7 +135,9 @@ function TweetScreen({ route, navigation }) {
                         </View>
 
                         <View style={styles.stat}>
-                            <Text style={styles.statNumber}>10</Text>
+                            <Text style={styles.statNumber}>
+                                {tweet.likes_count}
+                            </Text>
                             <Text style={styles.statText}>Likes</Text>
                         </View>
                     </View>

@@ -69,6 +69,7 @@ function HomeScreen({ route, navigation }) {
             .get(`/api/tweets?page=${page}`)
             .then(response => {
                 if (page === 1) {
+                    console.log(response.data.data);
                     setTweets(response.data.data);
                 } else {
                     let results = [...tweets, ...response.data.data].filter(
@@ -180,7 +181,10 @@ function HomeScreen({ route, navigation }) {
                     </View>
 
                     <View style={[styles.row, styles.itemsCenter]}>
-                        <LikeButton tweet={item} />
+                        <LikeButton
+                            likesCount={item.likes_count}
+                            likedByUser={item.liked_by_user}
+                        />
                     </View>
 
                     <TouchableOpacity style={[styles.row, styles.itemsCenter]}>

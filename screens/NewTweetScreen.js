@@ -15,7 +15,7 @@ function NewTweetScreen({ navigation }) {
     let max = 280;
     const [tweet, setTweet] = useState('');
     const [loading, setLoading] = useState(false);
-    const { user } = useContext(AuthContext);
+    const { user: loginUser } = useContext(AuthContext);
 
     function remaining() {
         return max - tweet.length;
@@ -38,7 +38,7 @@ function NewTweetScreen({ navigation }) {
         }
 
         appAxios
-            .bearToken(user.token)
+            .bearToken(loginUser.token)
             .via('post')
             .to(`/api/tweets`)
             .setPayload({
@@ -69,7 +69,7 @@ function NewTweetScreen({ navigation }) {
                     <Image
                         style={styles.avatar}
                         source={{
-                            uri: 'https://reactnative.dev/img/tiny_logo.png',
+                            uri: loginUser.user.avatar,
                         }}
                     />
                 </TouchableOpacity>

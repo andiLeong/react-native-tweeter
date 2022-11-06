@@ -1,16 +1,20 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { EvilIcons } from '@expo/vector-icons';
 import appAxios from '../helper/appAxios';
 import { AuthContext } from '../context/AuthProvider';
 
-function LikeButton({ tweet }) {
+function LikeButton({ likedByUser, likesCount }) {
     const { user: loginUser } = useContext(AuthContext);
-    const [likeCount, setLikeCount] = useState(tweet.likes_count);
+    const [likeCount, setLikeCount] = useState(likesCount);
     const [loading, setLoading] = useState(false);
-    const [isLiked, setIsLiked] = useState(tweet.liked_by_user);
+    const [isLiked, setIsLiked] = useState(likedByUser);
 
-    //liked_by_user
+    useEffect(() => {
+        setLikeCount(likesCount);
+        setIsLiked(likedByUser);
+    }, [likesCount, likedByUser]);
+
     function toggleCount() {
         setLoading(true);
         appAxios
