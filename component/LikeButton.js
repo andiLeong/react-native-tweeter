@@ -4,16 +4,16 @@ import { EvilIcons } from '@expo/vector-icons';
 import appAxios from '../helper/appAxios';
 import { AuthContext } from '../context/AuthProvider';
 
-function LikeButton({ likedByUser, likesCount }) {
+function LikeButton({ tweet }) {
     const { user: loginUser } = useContext(AuthContext);
-    const [likeCount, setLikeCount] = useState(likesCount);
+    const [likeCount, setLikeCount] = useState(tweet.likes_count);
     const [loading, setLoading] = useState(false);
-    const [isLiked, setIsLiked] = useState(likedByUser);
+    const [isLiked, setIsLiked] = useState(tweet.liked_by_user);
 
     useEffect(() => {
-        setLikeCount(likesCount);
-        setIsLiked(likedByUser);
-    }, [likesCount, likedByUser]);
+        setLikeCount(tweet.likes_count);
+        setIsLiked(tweet.liked_by_user);
+    }, [tweet.likes_count, tweet.liked_by_user]);
 
     function toggleCount() {
         setLoading(true);
@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
         marginRight: 4,
     },
     liked: {
-        fontWeight: 'bold',
         color: '#ec4899',
     },
 });

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     FlatList,
     Image,
     Platform,
@@ -14,6 +15,8 @@ import { AntDesign } from '@expo/vector-icons';
 import axiosConfig from '../helper/axiosConfig';
 import LikeButton from '../component/LikeButton';
 import { AuthContext } from '../context/AuthProvider';
+import RetweetedContent from '../component/RetweetedContent';
+import RetweetButton from '../component/RetweetButton';
 
 function HomeScreen({ route, navigation }) {
     const [tweets, setTweets] = useState([]);
@@ -36,6 +39,13 @@ function HomeScreen({ route, navigation }) {
             });
         }
     }, [route.params?.newTweetAdded, route.params?.tweetDeleted]);
+
+    function onUnretweeted() {
+        getAllTweetsRefresh();
+        flatListRef.current.scrollToOffset({
+            offset: 0,
+        });
+    }
 
     function getAllTweetsRefresh() {
         setPage(1);
@@ -69,7 +79,6 @@ function HomeScreen({ route, navigation }) {
             .get(`/api/tweets?page=${page}`)
             .then(response => {
                 if (page === 1) {
-                    console.log(response.data.data);
                     setTweets(response.data.data);
                 } else {
                     let results = [...tweets, ...response.data.data].filter(
@@ -103,7 +112,6 @@ function HomeScreen({ route, navigation }) {
 
     function goToNextPage() {
         let next = page + 1;
-        // console.log('on page ' + page + ' fetching data from page ' + next);
         setPage(page + 1);
     }
 
@@ -152,7 +160,10 @@ function HomeScreen({ route, navigation }) {
 
                 <TouchableOpacity onPress={() => gotoTweet(item.id)}>
                     <Text style={[styles.tweetContent]}>{item.body}</Text>
-                    <Text style={[styles.tweetContent]}>{item.id}</Text>
+                    {/*<Text style={[styles.tweetContent]}>{item.id}</Text>*/}
+                    {item.retweeted_tweet && (
+                        <RetweetedContent tweet={item.retweeted_tweet} />
+                    )}
                 </TouchableOpacity>
 
                 <View style={styles.tweetFooter}>
@@ -169,22 +180,15 @@ function HomeScreen({ route, navigation }) {
                     </View>
 
                     <View style={[styles.row, styles.itemsCenter]}>
-                        <TouchableOpacity>
-                            <EvilIcons
-                                name="retweet"
-                                size={22}
-                                color="gray"
-                                style={styles.mr4}
-                            />
-                        </TouchableOpacity>
-                        <Text style={[]}>99</Text>
+                        <RetweetButton
+                            tweet={item}
+                            navigation={navigation}
+                            fetchTweets={onUnretweeted}
+                        />
                     </View>
 
                     <View style={[styles.row, styles.itemsCenter]}>
-                        <LikeButton
-                            likesCount={item.likes_count}
-                            likedByUser={item.liked_by_user}
-                        />
+                        <LikeButton tweet={item} />
                     </View>
 
                     <TouchableOpacity style={[styles.row, styles.itemsCenter]}>
@@ -250,7 +254,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
     },
     tweetProfile: {
         width: 42,
