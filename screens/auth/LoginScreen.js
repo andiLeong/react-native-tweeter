@@ -3,13 +3,13 @@ import {
     ActivityIndicator,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { AuthContext } from '../../context/AuthProvider';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import FormikInput from '../../component/FormikInput';
 
 function LoginScreen({ navigation }) {
     const { login, error, isLoading } = useContext(AuthContext);
@@ -24,6 +24,17 @@ function LoginScreen({ navigation }) {
             .email('Invalid email')
             .required('Email is Required'),
     });
+
+    let fields = [
+        {
+            name: 'email',
+            textContentType: 'emailAddress',
+        },
+        {
+            name: 'password',
+            isSecure: true,
+        },
+    ];
 
     return (
         <View style={styles.container}>
@@ -48,40 +59,20 @@ function LoginScreen({ navigation }) {
                         touched,
                     }) => (
                         <>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('email')}
-                                onBlur={handleBlur('email')}
-                                value={values.email}
-                                placeholder="Email"
-                                placeholderTextColor="gray"
-                                textContentType="emailAddress"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
-
-                            {touched.email && errors.email && (
-                                <Text style={styles.validationError}>
-                                    {errors.email}
-                                </Text>
-                            )}
-
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('password')}
-                                onBlur={handleBlur('password')}
-                                value={values.password}
-                                placeholder="Password"
-                                placeholderTextColor="gray"
-                                autoCapitalize="none"
-                                secureTextEntry={true}
-                            />
-
-                            {touched.password && errors.password && (
-                                <Text style={styles.validationError}>
-                                    {errors.password}
-                                </Text>
-                            )}
+                            {fields.map((field, index) => (
+                                <FormikInput
+                                    key={index}
+                                    name={field.name}
+                                    handleChange={handleChange}
+                                    handleBlur={handleBlur}
+                                    errors={errors}
+                                    value={values[field.name]}
+                                    touched={touched}
+                                    placeHolder={field?.placeHolder}
+                                    isSecure={field?.isSecure}
+                                    textContentType={field?.textContentType}
+                                />
+                            ))}
 
                             <TouchableOpacity
                                 style={styles.button}
@@ -146,19 +137,9 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 5,
     },
-    input: {
-        borderRadius: 5,
-        padding: 15,
-        marginTop: 10,
-        backgroundColor: 'white',
-    },
     registerButtonContainer: {
         flexDirection: 'row',
         marginTop: 15,
         alignSelf: 'center',
-    },
-    validationError: {
-        color: 'red',
-        marginTop: 5,
     },
 });

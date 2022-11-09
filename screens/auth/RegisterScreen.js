@@ -11,12 +11,36 @@ import { AuthContext } from '../../context/AuthProvider';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import appAxios from '../../helper/appAxios';
+import FormikInput from '../../component/FormikInput';
 
 function RegisterScreen({ navigation }) {
     const { loginSuccess } = useContext(AuthContext);
-
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    let fields = [
+        {
+            name: 'username',
+        },
+        {
+            name: 'name',
+            placeHolder: 'Your Name',
+        },
+
+        {
+            name: 'email',
+            textContentType: 'emailAddress',
+        },
+        {
+            name: 'password',
+            isSecure: true,
+        },
+        {
+            name: 'password_confirmation',
+            isSecure: true,
+            placeHolder: 'Confirm your password',
+        },
+    ];
 
     const Validation = yup.object().shape({
         password: yup.string().min(3).required(),
@@ -77,94 +101,20 @@ function RegisterScreen({ navigation }) {
                         touched,
                     }) => (
                         <>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('name')}
-                                onBlur={handleBlur('name')}
-                                value={values.name}
-                                placeholder="Name"
-                                placeholderTextColor="gray"
-                                textContentType="name"
-                                autoCapitalize="none"
-                            />
-
-                            {touched.name && errors.name && (
-                                <Text style={styles.validationError}>
-                                    {errors.name}
-                                </Text>
-                            )}
-
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('username')}
-                                onBlur={handleBlur('username')}
-                                value={values.username}
-                                placeholder="Username"
-                                placeholderTextColor="gray"
-                                textContentType="username"
-                                autoCapitalize="none"
-                            />
-
-                            {touched.username && errors.username && (
-                                <Text style={styles.validationError}>
-                                    {errors.username}
-                                </Text>
-                            )}
-
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('email')}
-                                onBlur={handleBlur('email')}
-                                value={values.email}
-                                placeholder="Email"
-                                placeholderTextColor="gray"
-                                textContentType="emailAddress"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
-
-                            {touched.email && errors.email && (
-                                <Text style={styles.validationError}>
-                                    {errors.email}
-                                </Text>
-                            )}
-
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange('password')}
-                                onBlur={handleBlur('password')}
-                                value={values.password}
-                                placeholder="Password"
-                                placeholderTextColor="gray"
-                                autoCapitalize="none"
-                                secureTextEntry={true}
-                            />
-
-                            {touched.password && errors.password && (
-                                <Text style={styles.validationError}>
-                                    {errors.password}
-                                </Text>
-                            )}
-
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={handleChange(
-                                    'password_confirmation'
-                                )}
-                                onBlur={handleBlur('password_confirmation')}
-                                value={values.password_confirmation}
-                                placeholder="Password"
-                                placeholderTextColor="gray"
-                                autoCapitalize="none"
-                                secureTextEntry={true}
-                            />
-
-                            {touched.password_confirmation &&
-                                errors.password_confirmation && (
-                                    <Text style={styles.validationError}>
-                                        {errors.password_confirmation}
-                                    </Text>
-                                )}
+                            {fields.map((field, index) => (
+                                <FormikInput
+                                    key={index}
+                                    name={field.name}
+                                    handleChange={handleChange}
+                                    handleBlur={handleBlur}
+                                    errors={errors}
+                                    value={values[field.name]}
+                                    touched={touched}
+                                    placeHolder={field?.placeHolder}
+                                    isSecure={field?.isSecure}
+                                    textContentType={field?.textContentType}
+                                />
+                            ))}
 
                             <TouchableOpacity
                                 style={styles.button}
@@ -229,19 +179,9 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 5,
     },
-    input: {
-        borderRadius: 5,
-        padding: 15,
-        marginTop: 10,
-        backgroundColor: 'white',
-    },
     registerButtonContainer: {
         flexDirection: 'row',
         marginTop: 15,
         alignSelf: 'center',
-    },
-    validationError: {
-        color: 'red',
-        marginTop: 5,
     },
 });
