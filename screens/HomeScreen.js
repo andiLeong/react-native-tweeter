@@ -25,6 +25,10 @@ function HomeScreen({ route, navigation }) {
     const [noMoreTweets, setNoMoreTweets] = useState(false);
     const [page, setPage] = useState(1);
     const { user: loginUser } = useContext(AuthContext);
+    const [
+        onEndReachedCalledDuringMomentum,
+        setOnEndReachedCalledDuringMomentum,
+    ] = useState(true);
     const flatListRef = useRef();
 
     useEffect(() => {
@@ -48,9 +52,15 @@ function HomeScreen({ route, navigation }) {
     }
 
     function getAllTweetsRefresh() {
-        setPage(1);
+        console.log('on tweet refresh');
+
         setNoMoreTweets(false);
         setRefreshing(false);
+
+        if (page !== 1) {
+            setPage(1);
+            return;
+        }
 
         axiosConfig.defaults.headers.common[
             'Authorization'
@@ -62,6 +72,12 @@ function HomeScreen({ route, navigation }) {
                 setTweets(response.data.data);
                 setLoading(false);
                 setRefreshing(false);
+
+                if (response.data.data.length === 0) {
+                    setNoMoreTweets(true);
+                } else {
+                    setNoMoreTweets(false);
+                }
             })
             .catch(error => {
                 console.log(error);
@@ -71,6 +87,7 @@ function HomeScreen({ route, navigation }) {
     }
 
     function fetchTweets() {
+        console.log('fetching tweets');
         axiosConfig.defaults.headers.common[
             'Authorization'
         ] = `Bearer ${loginUser.token}`;
@@ -104,15 +121,21 @@ function HomeScreen({ route, navigation }) {
     }
 
     function pull() {
-        setPage(1);
+        // setPage(1);
         setNoMoreTweets(false);
         setRefreshing(true);
-        fetchTweets();
+        // fetchTweets();
+        if (page === 1) {
+            fetchTweets();
+        } else {
+            setPage(1);
+        }
     }
 
     function goToNextPage() {
+        console.log('on end reach going to next page');
         let next = page + 1;
-        setPage(page + 1);
+        setPage(next);
     }
 
     function gotoProfile(id) {
@@ -222,10 +245,19 @@ function HomeScreen({ route, navigation }) {
                     )}
                     refreshing={refreshing}
                     onRefresh={pull}
-                    onEndReached={goToNextPage}
-                    onEndReachedThreshold={0}
+                    onMomentumScrollBegin={() => {
+                        setOnEndReachedCalledDuringMomentum(false);
+                    }}
+                    onEndReached={() => {
+                        if (!onEndReachedCalledDuringMomentum) {
+                            goToNextPage();
+                            setOnEndReachedCalledDuringMomentum(true);
+                        }
+                    }}
+                    onEndReachedThreshold={0.1}
                     ListFooterComponent={() =>
-                        !noMoreTweets && (
+                        !noMoreTweets &&
+                        !onEndReachedCalledDuringMomentum && (
                             <ActivityIndicator size="large" color="gray" />
                         )
                     }
