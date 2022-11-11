@@ -15,6 +15,7 @@ import useAxiosGet from '../hooks/useAxiosGet';
 import { AuthContext } from '../context/AuthProvider';
 import { Modalize } from 'react-native-modalize';
 import AppAxios from '../helper/appAxios';
+import RetweetedContent from '../component/RetweetedContent';
 
 function TweetScreen({ route, navigation }) {
     const [tweet, loading] = useAxiosGet(`/api/tweets/${route.params.id}`);
@@ -99,6 +100,13 @@ function TweetScreen({ route, navigation }) {
 
                     <View style={styles.contentContainer}>
                         <Text style={styles.content}>{tweet.body}</Text>
+                        <View>
+                            {tweet.retweeted_tweet && (
+                                <RetweetedContent
+                                    tweet={tweet.retweeted_tweet}
+                                />
+                            )}
+                        </View>
                         <View style={styles.tweetTimestampContainer}>
                             <Text style={styles.tweetTimestampText}>
                                 {format(new Date(tweet.created_at), 'h:mm a')}
